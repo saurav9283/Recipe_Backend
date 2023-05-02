@@ -4,7 +4,6 @@ import {
 import { UserModel } from "../models/users.js";
 import express from "express";
 
-import { verifyToken } from "./users.js";
 const router = express.Router();
 router.get("/", async (req, res) => {
     try {
@@ -15,7 +14,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.put("/", verifyToken,async (req, res) => {
+router.put("/",async (req, res) => {
      
     try {
     const recipe=await RecipeModel.findById(req.body.recipeID);
@@ -29,9 +28,7 @@ router.put("/", verifyToken,async (req, res) => {
     }
 });
 
-router.post("/createRecipe",verifyToken, async (req, res) => {
-    
-
+router.post("/createRecipe", async (req, res) => {
     const recipe = new RecipeModel(req.body);
     try {
        const response= await recipe.save();
