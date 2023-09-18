@@ -2,7 +2,22 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/users.js";
+
 const router = express.Router();
+// const maxAge = 60;
+const secretKey = "saurav";
+
+function generateToken(userId) {
+  return jwt.sign(
+    {
+      id: userId,
+    },
+    secretKey,
+    {
+      expiresIn: '1m',
+    }
+  );
+}
 
 router.post("/register", async (req, res) => {
   const { name, username, password } = req.body;
@@ -29,7 +44,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await UserModel.findOne({
-    username,
+    username
   });
   if (!user) {
     return res.json({
@@ -44,23 +59,18 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  const token = jwt.sign(
-    {
-      id: user._id,
-    },
-    "predator"
-  );
+  const token = generateToken(user._id);
+
   res.json({
     token,
     userID: user._id,
   });
 });
-export { router as userRouter };
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers.authorization;
   if (token) {
-    jwt.verify(token, "predator", (err) => {
+    jwt.verify(token, secretKey, (err) => {
       if (err) return res.sendStatus(403);
       next();
     });
@@ -68,3 +78,5 @@ export const verifyToken = (req, res, next) => {
     res.sendStatus(401);
   }
 };
+
+export { router as userRouter };
