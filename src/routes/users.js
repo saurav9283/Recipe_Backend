@@ -21,9 +21,7 @@ function generateToken(userId) {
 
 router.post("/register", async (req, res) => {
   const { name, username, password } = req.body;
-  const user = await UserModel.findOne({
-    username,
-  });
+  const user = await UserModel.findOne({username});
   if (user) {
     return res.json({
       message: "User Already Exist!",
@@ -37,7 +35,7 @@ router.post("/register", async (req, res) => {
   });
   await newUser.save();
   res.json({
-    message: "user registered  !",
+    message: "user registered",
   });
 });
 
