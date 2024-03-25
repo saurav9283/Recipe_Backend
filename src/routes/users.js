@@ -2,10 +2,36 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/users.js";
+import nodemailer from "nodemailer"
+import dotenv from "dotenv"
+dotenv.config();
 
 const router = express.Router();
 // const maxAge = 60;
 const secretKey = "saurav";
+
+
+// this transpporter is used as a transporter to send mail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  }
+});
+
+// this  function is used to send mail
+async function sendEmail(to,subject,text){
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,subject,text
+    });
+    console.log("Email send suceddful");
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
 
 function generateToken(userId) {
   return jwt.sign(
@@ -34,6 +60,8 @@ router.post("/register", async (req, res) => {
     password: hashedPassword,
   });
   await newUser.save();
+  //Sending registration email
+  await sendEmail(username, 'Registration Successful', 'Welcome to our platform! You have successfully registered.');
   res.json({
     message: "user registered",
   });
